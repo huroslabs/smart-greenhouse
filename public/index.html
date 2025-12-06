@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8" />
+	<title>Sensor Data</title>
+	<style>
+		body {
+			font-family: Arial;
+			padding: 20px;
+		}
+
+		table {
+			border-collapse: collapse;
+			width: 100%;
+			margin-top: 20px;
+		}
+
+		table,
+		th,
+		td {
+			border: 1px solid #aaa;
+			padding: 8px;
+		}
+
+		button {
+			margin: 10px;
+			padding: 10px 20px;
+			font-size: 16px;
+		}
+
+		.on {
+			background-color: green;
+			color: white;
+		}
+
+		.off {
+			background-color: red;
+			color: white;
+		}
+	</style>
+</head>
+
+<body>
+
+	<h2>📊 Sensor Data</h2>
+	<p>Data real-time dari database API.</p>
+
+	<h2>Kontrol Button</h2>
+
+	<button id="button1" class="off">Button 1 OFF</button>
+	<button id="button2" class="off">Button 2 OFF</button>
+
+	<table id="table">
+		<thead>
+			<tr>
+				<th>ID</th>
+				<th>Temperature</th>
+				<th>Humidity</th>
+				<th>Waktu</th>
+			</tr>
+		</thead>
+		<tbody></tbody>
+	</table>
+
+	<script>
+		async function loadData() {
+			const res = await fetch('/api/data');
+			const data = await res.json();
+
+			let rows = "";
+			data.forEach(d => {
+				rows += `
+      <tr>
+        <td>${d.id}</td>
+        <td>${d.temperature}</td>
+        <td>${d.humidity}</td>
+        <td>${d.created_at}</td>
+      </tr>
+    `;
+			});
+
+			document.querySelector("#table tbody").innerHTML = rows;
+		}
+
+		async function fetchStatus() {
+			const res = await fetch('/api/controls');
+			const controls = await res.json();
+
+			controls.forEach(c => {
+				const btn = document.getElementById(c.name);
+				if (!btn) return;
+
+				if (c.status === 1) {
+					btn.textContent = `${c.name} ON`;
+					btn.classList.add('on');
+					btn.classList.remove('off');
+				} else {
+					btn.textContent = `${c.name} OFF`;
+					btn.classList.add('off');
+					btn.classList.remove('on');
+				}
+			});
+		}
+
+		async function toggleButton(name) {
+			const btn = document.getElementById(name);
+			const isOn = btn.classList.contains('on');
+			const newStatus = isOn ? 0 : 1;
+
+			const res = await fetch(`/api/controls/${name}`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ status: newStatus })
+			});
+
+			if (res.ok) {
+				fetchStatus();
+			} else {
+				alert('Gagal update status');
+			}
+		}
+
+		document.getElementById('button1').addEventListener('click', () => toggleButton('button1'));
+		document.getElementById('button2').addEventListener('click', () => toggleButton('button2'));
+
+		fetchStatus();
+		loadData();
+
+		setInterval(fetchStatus, 5000);
+		setInterval(loadData, 3000);
+	</script>
+
+</body>
+
+</html>
