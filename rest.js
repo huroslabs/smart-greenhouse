@@ -4,6 +4,7 @@ const cors = require('cors');
 const db = require('./db');
 const path = require('path');
 
+const PORT = 3000;
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -13,15 +14,15 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // ESP kirim data
 app.post('/api/data', (req, res) => {
-  const { temperature, humidity } = req.body;
+  const { temperature, tds, ph} = req.body;
 
-  if (!temperature || !humidity) {
-    return res.status(400).json({ error: "temperature & humidity required" });
+  if (!temperature || !tds || !ph) {
+    return res.status(400).json({ error: "temperature, td & ph required" });
   }
 
   db.run(
-    `INSERT INTO sensor_data (temperature, humidity) VALUES (?, ?)`,
-    [temperature, humidity],
+    `INSERT INTO sensor_data (temperature, tds, ph) VALUES (?, ?, ?)`,
+    [temperature, tds, ph],
     function (err) {
       if (err) return res.status(500).json({ error: err.message });
 
@@ -32,7 +33,7 @@ app.post('/api/data', (req, res) => {
 
 // Ambil semua data
 app.get('/api/data', (req, res) => {
-  db.all(`SELECT * FROM sensor_data ORDER BY id DESC`, (err, rows) => {
+  db.all(`SELECT * FROM sensor_data ORDER BY id ASC`, (err, rows) => {
     if (err) return res.status(500).json({ error: err.message });
     res.json(rows);
   });
@@ -69,5 +70,6 @@ app.post('/api/controls/:name', (req, res) => {
 });
 
 // Jalankan server
-const PORT = 3000;
-app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+});

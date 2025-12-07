@@ -8,7 +8,8 @@ db.serialize(() => {
     CREATE TABLE IF NOT EXISTS sensor_data (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       temperature REAL,
-      humidity REAL,
+      tds REAL,
+      ph REAL,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `);
