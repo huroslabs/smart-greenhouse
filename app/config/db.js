@@ -1,7 +1,12 @@
 // db.js
+const path = require('path');
 const sqlite3 = require('sqlite3').verbose();
 
-const db = new sqlite3.Database('./data.db');
+const dbPath = path.join(__dirname, '../../database/data.db');
+const db = new sqlite3.Database(dbPath, (err) => {
+  if (err) return console.error('DB Error:', err.message);
+  console.log('SQLite connected');
+});
 
 db.serialize(() => {
   db.run(`
