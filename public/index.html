@@ -252,6 +252,14 @@
             Charts.data.datasets[1].data = tdsData;
             Charts.data.datasets[2].data = temperatureData;
             
+            const MAX_POINTS = 100;
+            if (Charts.data.labels.length > MAX_POINTS) {
+                Charts.data.labels.splice(0, Charts.data.labels.length - MAX_POINTS);
+                Charts.data.datasets.forEach(ds => {
+                    ds.data.splice(0, ds.data.length - MAX_POINTS);
+                });
+            }
+            
             Charts.update();
 
             const lastRow = rows[rows.length - 1];

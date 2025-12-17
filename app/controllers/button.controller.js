@@ -1,5 +1,5 @@
 const Button = require('../models/button.model');
-const client = require('../mqtt/mqtt-client'); 
+
 
 exports.UpdateData = async (req, res) => {
   try {
@@ -18,6 +18,7 @@ exports.UpdateData = async (req, res) => {
 };
 
 exports.UpdateDataMQTT = async (req, res) => {
+  const client = require('../mqtt/mqtt-client'); 
   try {
     const { name } = req.params;
     const { status } = req.body;
